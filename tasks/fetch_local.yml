@@ -1,0 +1,42 @@
+---
+# file: tasks/install.yml
+- name: Copy artifact to destination
+  become: true
+  copy:
+    src: '{{ full_aem_local_transport_link }}'
+    dest: '{{ aem_home }}/{{ cq_file_name }}.jar'
+    owner: '{{ aem_user }}'
+    group: '{{ aem_user }}'
+    mode: 0640
+    # checksum: sha1
+  register: file_downloaded
+  retries: 5
+  delay: 2
+  until: file_downloaded is succeeded
+
+- name: Copy artifact to destination (AEM licence)
+  become: true
+  copy:
+    src: '{{ full_license_local_transport_link }}'
+    dest: '{{ aem_home }}/license.properties'
+    owner: '{{ aem_user }}'
+    group: '{{ aem_user }}'
+    mode: 0640
+  register: file_downloaded
+  retries: 5
+  delay: 2
+  until: file_downloaded is succeeded
+
+- name: Copy artifact to destination (Jolokia agent)
+  become: true
+  copy:
+    src: '{{ jolokia_agent_url }}'
+    dest: '{{ aem_home }}/jolokia-jvm-1.6.2-agent.jar'
+    owner: '{{ aem_user }}'
+    group: '{{ aem_user }}'
+    mode: 0640
+  register: file_downloaded
+  retries: 5
+  delay: 2
+  until: file_downloaded is succeeded
+  when: jolokia_agent is defined

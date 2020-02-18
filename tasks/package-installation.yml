@@ -33,6 +33,21 @@
       owner: '{{ aem_user }}'
       group: '{{ aem_user }}'
       mode: 0640
+    when:  download_transport == 'web'
+  - name: Copy artifact to destination
+    # become: true
+    copy:
+      src: '{{ web_transport_common_url }}/packages/{{ aem_package }}.zip'
+      dest: '/tmp/{{ aem_package }}.zip'
+      owner: '{{ aem_user }}'
+      group: '{{ aem_user }}'
+      mode: 0640
+    register: file_downloaded
+    retries: 5
+    delay: 2
+    until: file_downloaded is succeeded
+    when:  download_transport == 'local'
+
   - name: 'send request to upload and install {{ aem_package }}'
     shell: "curl -u {{ aem_admin_login }}:{{ aem_admin_password }} -F file=@'/tmp/{{ aem_package }}.zip' -F na\
 me='{{ aem_package }}' -F force=true -F install=true -F recursive=true {{ aem_rest_link }}/crx/packmgr/service.jsp"
